@@ -1,14 +1,23 @@
 from models.accounts import BankAccount, CreditCard
+from datetime import date, datetime
 
 
 class Transaction:
-    def __init__(self, date, amount, description, trans_type, target):
-        self.date = date
+    def __init__(self, day, amount, description, trans_type, target):
+        if isinstance(day, date):
+            self.day = day
+        elif isinstance(day, str):
+            try:
+                self.day = datetime.strptime(day, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError('Invalid date format, expected YYYY-MM-DD')
+        else:
+            raise ValueError('Date format wrong')
         if (amount <= 0):
             raise ValueError('Amount must be more than zero')
         self.amount = amount
         self.description = description
-        if (trans_type != 'income' and trans_type != 'expense' and trans_type != 'pay_credit'):
+        if trans_type not in ('income', 'expense', 'pay_credit'):
             raise ValueError('Please select a valid transaction type')
         self.trans_type = trans_type
         if (not isinstance(target, BankAccount) and not isinstance(target, CreditCard)):
