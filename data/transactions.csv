@@ -1,0 +1,7 @@
+date,amount,description,trans_type,target_type,target_name
+2025-11-10,15000,Salary,income,bank_account,Andersson
+2025-11-14,200,Netflix,expense,credit_card,Mastercard
+2025-11-13,1200,Shoes,expense,bank_account,Andersson
+2025-11-25,1200,Shoes,expense,credit_card,Mastercard
+2025-11-30,1400,Pay credit card,pay_credit,credit_card,Mastercard
+2025-12-01,200,christmas tree,expense,credit_card,Mastercard
