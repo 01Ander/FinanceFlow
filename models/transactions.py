@@ -67,7 +67,7 @@ class RecurringTransaction:
             raise ValueError('Frequency not valid')
         self.frequency = frequency
         if isinstance(start_date, date):
-            self.start_day = start_date
+            self.start_date = start_date
         elif isinstance(start_date, str):
             try:
                 self.start_date = datetime.strptime(
@@ -77,7 +77,7 @@ class RecurringTransaction:
         else:
             raise ValueError('Date format wrong')
         if isinstance(end_date, date):
-            self.end_day = end_date
+            self.end_date = end_date
         elif isinstance(end_date, str):
             try:
                 self.end_date = datetime.strptime(
@@ -109,7 +109,7 @@ class RecurringTransaction:
         if start_date > end_date:
             raise ValueError('Invalid range')
         effective_start = max(self.start_date, start_date)
-        effective_end = end_date
+        effective_end = min(self.end_date, end_date)
         if effective_start > effective_end:
             return []
         transactions = []
