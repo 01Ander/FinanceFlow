@@ -39,3 +39,39 @@ class Transaction:
             self.target.pay(self.amount)
         else:
             raise ValueError('Transaction invalid')
+
+
+class RecurringTransaction:
+    def __init__(self, day, amount, description, trans_type, target, frequency, start_date):
+        if day < 1 or day > 28:
+            raise ValueError('Day must be between 1 and 28')
+        self.day = day
+        if amount <= 0:
+            raise ValueError('Amount must be more than zero')
+        self.amount = amount
+        self.description = description
+        if trans_type not in ('income', 'expense', 'pay_credit'):
+            raise ValueError('Please select a valid transaction type')
+        self.trans_type = trans_type
+        if not isinstance(target, (BankAccount, CreditCard)):
+            raise ValueError('Please select a valid account')
+        if trans_type == 'income' and not isinstance(target, BankAccount):
+            raise ValueError(
+                'Income recurring transactions must target a BankAccount')
+        if trans_type == 'pay_credit' and not isinstance(target, CreditCard):
+            raise ValueError(
+                'pay_credit recurring transactions require a CreditCard target')
+        self.target = target
+        if frequency not in ('weekly', 'monthly'):
+            raise ValueError('Frequency not valid')
+        self.frequency = frequency
+        if isinstance(start_date, date):
+            self.start_day = start_date
+        elif isinstance(start_date, str):
+            try:
+                self.start_date = datetime.strptime(
+                    start_date, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError('Invalid date format, expected YYYY-MM-DD')
+        else:
+            raise ValueError('Date format wrong')

@@ -33,7 +33,7 @@ print(
 transactions_November = [t1, t2, t3, t4, t5]
 save_transactions_to_csv('data/transactions.csv', transactions_November)
 
-t6 = Transaction('2025-12-01', 200, 'christmas tree',
+t6 = Transaction('2025-12-01', 200, 'Christmas tree',
                  'expense', my_credit_card)
 t6.apply()
 print('T6 apply')
