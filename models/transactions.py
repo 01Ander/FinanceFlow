@@ -1,5 +1,6 @@
 from models.accounts import BankAccount, CreditCard
 from datetime import date, datetime
+from models.transactions import Transaction
 
 
 class Transaction:
@@ -42,7 +43,7 @@ class Transaction:
 
 
 class RecurringTransaction:
-    def __init__(self, day, amount, description, trans_type, target, frequency, start_date):
+    def __init__(self, day, amount, description, trans_type, target, frequency, start_date, end_date):
         if day < 1 or day > 28:
             raise ValueError('Day must be between 1 and 28')
         self.day = day
@@ -75,3 +76,67 @@ class RecurringTransaction:
                 raise ValueError('Invalid date format, expected YYYY-MM-DD')
         else:
             raise ValueError('Date format wrong')
+        if isinstance(end_date, date):
+            self.end_day = end_date
+        elif isinstance(end_date, str):
+            try:
+                self.end_date = datetime.strptime(
+                    end_date, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError('Invalid date format, expected YYYY-MM-DD')
+        else:
+            raise ValueError('Date format wrong')
+
+    def generate_transactions(self, start, end):
+        if isinstance(start, date):
+            start_date = start
+        elif isinstance(start, str):
+            try:
+                start_date = datetime.strptime(start, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError('Invalid date format, expected YYYY-MM-DD')
+        else:
+            raise ValueError('Date format wrong')
+        if isinstance(end, date):
+            end_date = end
+        elif isinstance(end, str):
+            try:
+                end_date = datetime.strptime(end, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError('Invalid date format, expected YYYY-MM-DD')
+        else:
+            raise ValueError('Date format wrong')
+        if start_date > end_date:
+            raise ValueError('Invalid range')
+        effective_start = max(self.start_date, start_date)
+        effective_end = end_date
+        if effective_start > effective_end:
+            return []
+        transactions = []
+        year = effective_start.year
+        month = effective_start.month
+        while True:
+            occurrence = date(year, month, self.day)
+            if occurrence < effective_start:
+                if month == 12:
+                    month = 1
+                    year += 1
+                else:
+                    month += 1
+                continue
+            if occurrence > effective_end:
+                break
+            tx = Transaction(
+                occurrence,
+                self.amount,
+                self.description,
+                self.trans_type,
+                self.target
+            )
+            transactions.append(tx)
+            if month == 12:
+                month = 1
+                year += 1
+            else:
+                month += 1
+        return transactions
