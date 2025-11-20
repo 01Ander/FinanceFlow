@@ -3,8 +3,19 @@ from datetime import date, datetime
 from models.transactions import Transaction
 
 
+# -----------------------------------------------------------
+# Clase Transaction
+# Representa una transacción única aplicada a una cuenta:
+# - Maneja ingresos, gastos y pagos de tarjeta
+# - Valida fecha, monto, tipo de transacción y destino
+# - Puede aplicarse tanto a BankAccount como CreditCard
+# -----------------------------------------------------------
+
 class Transaction:
     def __init__(self, day, amount, description, trans_type, target):
+
+        # ---- Validación y normalización de la fecha ----
+        # Permite recibir un objeto date o una cadena 'YYYY-MM-DD'.
         if isinstance(day, date):
             self.day = day
         elif isinstance(day, str):
@@ -14,30 +25,56 @@ class Transaction:
                 raise ValueError('Invalid date format, expected YYYY-MM-DD')
         else:
             raise ValueError('Date format wrong')
-        if (amount <= 0):
+
+        # ---- Validación del monto ----
+        if amount <= 0:
             raise ValueError('Amount must be more than zero')
         self.amount = amount
+
+        # Descripción de la transacción (libre)
         self.description = description
+
+        # ---- Tipo de transacción ----
+        # Se permiten solo tres categorías controladas
         if trans_type not in ('income', 'expense', 'pay_credit'):
             raise ValueError('Please select a valid transaction type')
         self.trans_type = trans_type
-        if (not isinstance(target, BankAccount) and not isinstance(target, CreditCard)):
+
+        # ---- Destino de la transacción ----
+        # Debe ser un objeto BankAccount o CreditCard
+        if (not isinstance(target, BankAccount) and
+                not isinstance(target, CreditCard)):
             raise ValueError('Please select a valid account')
         self.target = target
 
+    # -------------------------------------------------------
+    # Método principal:
+    # Ejecuta la operación según el tipo de transacción:
+    # - income → depósito en cuenta bancaria
+    # - expense → retiro en cuenta o compra con tarjeta
+    # - pay_credit → pago de deuda usando la cuenta asociada
+    # -------------------------------------------------------
+
     def apply(self):
+        # Ingreso directo a cuenta bancaria
         if self.trans_type == 'income' and isinstance(self.target, BankAccount):
             self.target.deposit(self.amount)
+
+        # Gasto: puede afectar una cuenta bancaria o una tarjeta
         elif self.trans_type == 'expense':
             if isinstance(self.target, BankAccount):
                 self.target.withdraw(self.amount)
             if isinstance(self.target, CreditCard):
                 self.target.purchase(self.amount)
+
+        # Pago de tarjeta: solo válido si el target es CreditCard
         elif self.trans_type == 'pay_credit':
             if not isinstance(self.target, CreditCard):
                 raise ValueError(
                     "pay_credit transactions require a CreditCard target")
             self.target.pay(self.amount)
+
+        # Si nada aplica, algo está mal en la configuración
         else:
             raise ValueError('Transaction invalid')
 
